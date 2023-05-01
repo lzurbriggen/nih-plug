@@ -1,6 +1,5 @@
 //! A resize handle for uniformly scaling a plugin GUI.
 
-use vizia::cache::BoundingBox;
 use vizia::prelude::*;
 use vizia::vg;
 
@@ -47,17 +46,17 @@ impl View for ResizeHandle {
                 // triangle
                 if intersects_triangle(
                     cx.cache.get_bounds(cx.current()),
-                    (cx.mouse.cursorx, cx.mouse.cursory),
+                    (cx.mouse().cursorx, cx.mouse().cursory),
                 ) {
                     cx.capture();
                     cx.set_active(true);
 
                     self.drag_active = true;
                     self.start_scale_factor = cx.user_scale_factor();
-                    self.start_dpi_factor = cx.style.dpi_factor;
+                    self.start_dpi_factor = cx.scale_factor() as f64;
                     self.start_physical_coordinates = (
-                        cx.mouse.cursorx * cx.style.dpi_factor as f32,
-                        cx.mouse.cursory * cx.style.dpi_factor as f32,
+                        cx.mouse().cursorx * cx.scale_factor(),
+                        cx.mouse().cursory * cx.scale_factor(),
                     );
 
                     meta.consume();
@@ -116,19 +115,15 @@ impl View for ResizeHandle {
             return;
         }
 
-        let background_color = cx.background_color().copied().unwrap_or_default();
-        let border_color = cx.border_color().copied().unwrap_or_default();
+        let background_color = cx.background_color();
+        let border_color = cx.border_color();
         let opacity = cx.opacity();
         let mut background_color: vg::Color = background_color.into();
         background_color.set_alphaf(background_color.a * opacity);
         let mut border_color: vg::Color = border_color.into();
         border_color.set_alphaf(border_color.a * opacity);
 
-        let border_width = match cx.border_width().unwrap_or_default() {
-            Units::Pixels(val) => val,
-            Units::Percentage(val) => bounds.w.min(bounds.h) * (val / 100.0),
-            _ => 0.0,
-        };
+        let border_width = cx.border_width();
 
         let mut path = vg::Path::new();
         let x = bounds.x + border_width / 2.0;
@@ -179,7 +174,7 @@ impl View for ResizeHandle {
         // path.move_to(x + (w / 3.0 * 1.5), y + h);
         // path.close();
 
-        let mut color: vg::Color = cx.font_color().copied().unwrap_or(Color::white()).into();
+        let mut color: vg::Color = cx.font_color().into();
         color.set_alphaf(color.a * opacity);
         let paint = vg::Paint::color(color);
         canvas.fill_path(&mut path, &paint);

@@ -37,10 +37,12 @@ impl ModifiersExt for Modifiers {
 /// Remap a `[0, 1]` value to an x-coordinate within the current entity's bounding box. The value
 /// will be clamped to `[0, 1]` if it isn't already in that range. This ignores the border width.
 pub fn remap_current_entity_x_t(cx: &EventContext, t: f32) -> f32 {
-    let border_width = match cx.style.border_width.get(cx.current()) {
-        Some(Units::Pixels(x)) => *x,
-        _ => 0.0,
-    };
+    // TODO: figure out how to get border_width in this branch
+    // let border_width = match cx.style.border_width.get(cx.current()) {
+    //     Some(Units::Pixels(x)) => *x,
+    //     _ => 0.0,
+    // };
+    let border_width = 0.;
     let x_pos = cx.cache.get_posx(cx.current()) + border_width;
     let width = cx.cache.get_width(cx.current()) - (border_width * 2.0);
     x_pos + (width * t.clamp(0.0, 1.0))
@@ -54,10 +56,12 @@ pub fn remap_current_entity_x_t(cx: &EventContext, t: f32) -> f32 {
 /// As y-coordinates increase from top to bottom, this value is likely the inverse of what you want.
 /// 0.0 is the bottom of the enitty and 1.0 corresponds to the top of the entity.
 pub fn remap_current_entity_y_t(cx: &EventContext, t: f32) -> f32 {
-    let border_width = match cx.style.border_width.get(cx.current()) {
-        Some(Units::Pixels(x)) => *x,
-        _ => 0.0,
-    };
+    // TODO: figure out how to get border_width in this branch
+    // let border_width = match cx.style.border_width.get(cx.current()) {
+    //     Some(Units::Pixels(x)) => *x,
+    //     _ => 0.0,
+    // };
+    let border_width = 0.;
     let y_pos = cx.cache.get_posy(cx.current()) + border_width;
     let height = cx.cache.get_height(cx.current()) - (border_width * 2.0);
     y_pos + (height * t.clamp(0.0, 1.0))
@@ -66,10 +70,12 @@ pub fn remap_current_entity_y_t(cx: &EventContext, t: f32) -> f32 {
 /// Remap an x-coordinate to a `[0, 1]` value within the current entity's bounding box. The value
 /// will be clamped to `[0, 1]` if it isn't already in that range. This ignores the border width.
 pub fn remap_current_entity_x_coordinate(cx: &EventContext, x_coord: f32) -> f32 {
-    let border_width = match cx.style.border_width.get(cx.current()) {
-        Some(Units::Pixels(x)) => *x,
-        _ => 0.0,
-    };
+    // TODO: figure out how to get border_width in this branch
+    // let border_width = match cx.style.border_width.get(cx.current()) {
+    //     Some(Units::Pixels(x)) => *x,
+    //     _ => 0.0,
+    // };
+    let border_width = 0.;
     let x_pos = cx.cache.get_posx(cx.current()) + border_width;
     let width = cx.cache.get_width(cx.current()) - (border_width * 2.0);
     ((x_coord - x_pos) / width).clamp(0.0, 1.0)
@@ -83,10 +89,12 @@ pub fn remap_current_entity_x_coordinate(cx: &EventContext, x_coord: f32) -> f32
 /// As y-coordinates increase from top to bottom, this value is likely the inverse of what you want.
 /// 0.0 is the bottom of the enitty and 1.0 corresponds to the top of the entity.
 pub fn remap_current_entity_y_coordinate(cx: &EventContext, y_coord: f32) -> f32 {
-    let border_width = match cx.style.border_width.get(cx.current()) {
-        Some(Units::Pixels(x)) => *x,
-        _ => 0.0,
-    };
+    // TODO: figure out how to get border_width in this branch
+    // let border_width = match cx.style.border_width.get(cx.current()) {
+    //     Some(Units::Pixels(x)) => *x,
+    //     _ => 0.0,
+    // };
+    let border_width = 0.;
     let y_pos = cx.cache.get_posy(cx.current()) + border_width;
     let height = cx.cache.get_height(cx.current()) - (border_width * 2.0);
     ((y_coord - y_pos) / height).clamp(0.0, 1.0)

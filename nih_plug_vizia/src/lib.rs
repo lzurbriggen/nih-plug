@@ -17,7 +17,7 @@ pub use vizia;
 
 pub mod assets;
 mod editor;
-pub mod vizia_assets;
+// pub mod vizia_assets;
 pub mod widgets;
 
 /// Create an [`Editor`] instance using a [`vizia`][::vizia] GUI. The [`ViziaState`] passed to this

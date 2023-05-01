@@ -4,6 +4,7 @@
 use vizia::prelude::*;
 
 // This module provides a re-export and simple font wrappers around the re-exported fonts.
+// TODO: what changed here?
 pub use vizia::fonts;
 
 /// The font name for the Roboto (Regular) font, needs to be registered using [`register_roboto()`]
@@ -26,7 +27,7 @@ pub const ARABIC: &str = "Amiri";
 pub const MATERIAL: &str = "Material Icons";
 
 pub fn register_roboto(cx: &mut Context) {
-    cx.add_fonts_mem(&[fonts::ROBOTO_REGULAR]);
+    cx.add_fonts_mem(&[ROBOTO_REGULAR]);
 }
 pub fn register_roboto_bold(cx: &mut Context) {
     cx.add_fonts_mem(&[fonts::ROBOTO_BOLD]);

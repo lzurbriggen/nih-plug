@@ -19,4 +19,9 @@ serde = { version = "1.0", features = ["derive"] }
 # suitable for use in NIH-plug. The set of patches constantly changes as things
 # are merged into upstream Vizia. This also excludes the `embedded_fonts`
 # feature.
-vizia = { git = "https://github.com/robbert-vdh/vizia.git", branch = "patched", default_features = false, features = ["baseview", "clipboard", "x11"] }
+vizia = { git = "https://github.com/vizia/vizia.git", branch = "new-style-system", default_features = false, features = [
+  "baseview",
+  "clipboard",
+  "x11",
+  "embedded_fonts",
+] }
