@@ -1,9 +1,14 @@
 //! And [`Editor`] implementation for iced.
 
-use baseview::{WindowOpenOptions, WindowScalePolicy};
 use crossbeam::atomic::AtomicCell;
 use crossbeam::channel;
 pub use iced_baseview::*;
+use iced_baseview::{
+    baseview::{WindowOpenOptions, WindowScalePolicy},
+    open_parented,
+    settings::IcedBaseviewSettings,
+    window::IcedWindow,
+};
 use nih_plug::prelude::{Editor, GuiContext, ParentWindowHandle};
 use std::sync::atomic::Ordering;
 use std::sync::Arc;
@@ -35,7 +40,7 @@ impl<E: IcedEditor> Editor for IcedEditorWrapper<E> {
 
         // TODO: iced_baseview does not have gracefuly error handling for context creation failures.
         //       This will panic if the context could not be created.
-        let window = IcedWindow::<wrapper::IcedEditorWrapperApplication<E>>::open_parented(
+        let window = open_parented::<wrapper::IcedEditorWrapperApplication<E>, ParentWindowHandle>(
             &parent,
             Settings {
                 window: WindowOpenOptions {
@@ -66,11 +71,12 @@ impl<E: IcedEditor> Editor for IcedEditorWrapper<E> {
                         vsync: true,
                         ..Default::default()
                     }),
+                    // TODO: iced 10
                     // FIXME: Rust analyzer always thinks baseview/opengl is enabled even if we
                     //        don't explicitly enable it, so you'd get a compile error if this line
                     //        is missing
-                    #[cfg(not(feature = "opengl"))]
-                    gl_config: None,
+                    // #[cfg(not(feature = "opengl"))]
+                    // gl_config: None,
                 },
                 iced_baseview: IcedBaseviewSettings {
                     ignore_non_modifier_keys: false,
@@ -127,7 +133,7 @@ impl<E: IcedEditor> Editor for IcedEditorWrapper<E> {
 /// The window handle used for [`IcedEditorWrapper`].
 struct IcedEditorHandle<Message: 'static + Send> {
     iced_state: Arc<IcedState>,
-    window: iced_baseview::WindowHandle<Message>,
+    window: window::WindowHandle<Message>,
 }
 
 /// The window handle enum stored within 'WindowHandle' contains raw pointers. Is there a way around

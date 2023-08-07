@@ -1,5 +1,8 @@
 use atomic_float::AtomicF32;
 use nih_plug::prelude::{util, Editor, GuiContext};
+use nih_plug_iced::core::{alignment, Alignment, Element, Length, Text};
+use nih_plug_iced::runtime::Command;
+use nih_plug_iced::widget::{text, Column, Space};
 use nih_plug_iced::widgets as nih_widgets;
 use nih_plug_iced::*;
 use std::sync::Arc;
@@ -25,9 +28,8 @@ struct GainEditor {
     context: Arc<dyn GuiContext>,
 
     peak_meter: Arc<AtomicF32>,
-
-    gain_slider_state: nih_widgets::param_slider::State,
-    peak_meter_state: nih_widgets::peak_meter::State,
+    // gain_slider_state: nih_widgets::param_slider::State,
+    // peak_meter_state: nih_widgets::peak_meter::State,
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -50,9 +52,8 @@ impl IcedEditor for GainEditor {
             context,
 
             peak_meter,
-
-            gain_slider_state: Default::default(),
-            peak_meter_state: Default::default(),
+            // gain_slider_state: Default::default(),
+            // peak_meter_state: Default::default(),
         };
 
         (editor, Command::none())
@@ -64,7 +65,7 @@ impl IcedEditor for GainEditor {
 
     fn update(
         &mut self,
-        _window: &mut WindowQueue,
+        // _window: &mut WindowQueue,
         message: Self::Message,
     ) -> Command<Self::Message> {
         match message {
@@ -74,42 +75,42 @@ impl IcedEditor for GainEditor {
         Command::none()
     }
 
-    fn view(&mut self) -> Element<'_, Self::Message> {
+    fn view(&self) -> Element<'_, Self::Message, Renderer> {
         Column::new()
             .align_items(Alignment::Center)
             .push(
-                Text::new("Gain GUI")
-                    .font(assets::NOTO_SANS_LIGHT)
+                text("Gain GUI")
+                    // .font(assets::NOTO_SANS_LIGHT)
                     .size(40)
-                    .height(50.into())
+                    .height(50)
                     .width(Length::Fill)
                     .horizontal_alignment(alignment::Horizontal::Center)
                     .vertical_alignment(alignment::Vertical::Bottom),
             )
             .push(
-                Text::new("Gain")
-                    .height(20.into())
+                text("Gain")
+                    .height(20)
                     .width(Length::Fill)
                     .horizontal_alignment(alignment::Horizontal::Center)
                     .vertical_alignment(alignment::Vertical::Center),
             )
-            .push(
-                nih_widgets::ParamSlider::new(&mut self.gain_slider_state, &self.params.gain)
-                    .map(Message::ParamUpdate),
-            )
-            .push(Space::with_height(10.into()))
-            .push(
-                nih_widgets::PeakMeter::new(
-                    &mut self.peak_meter_state,
-                    util::gain_to_db(self.peak_meter.load(std::sync::atomic::Ordering::Relaxed)),
-                )
-                .hold_time(Duration::from_millis(600)),
-            )
+            // .push(
+            //     nih_widgets::ParamSlider::new(&mut self.gain_slider_state, &self.params.gain)
+            //         .map(Message::ParamUpdate),
+            // )
+            .push(Space::with_height(10))
+            // .push(
+            //     nih_widgets::PeakMeter::new(
+            //         &mut self.peak_meter_state,
+            //         util::gain_to_db(self.peak_meter.load(std::sync::atomic::Ordering::Relaxed)),
+            //     )
+            //     .hold_time(Duration::from_millis(600)),
+            // )
             .into()
     }
 
-    fn background_color(&self) -> nih_plug_iced::Color {
-        nih_plug_iced::Color {
+    fn background_color(&self) -> core::Color {
+        core::Color {
             r: 0.98,
             g: 0.98,
             b: 0.98,

@@ -2,6 +2,8 @@
 //! list of sliders and labels.
 
 use atomic_refcell::AtomicRefCell;
+use baseview::{Event, Point};
+use iced_baseview::widget::{self, Scrollable};
 use std::borrow::Borrow;
 use std::collections::HashMap;
 use std::marker::PhantomData;
@@ -10,12 +12,12 @@ use std::sync::Arc;
 use nih_plug::prelude::{Param, ParamFlags, ParamPtr, Params};
 
 use super::{ParamMessage, ParamSlider};
-use crate::backend::Renderer;
-use crate::text::Renderer as TextRenderer;
-use crate::{
-    alignment, event, layout, renderer, widget, Alignment, Clipboard, Element, Event, Layout,
-    Length, Point, Rectangle, Row, Scrollable, Shell, Space, Text, Widget,
+use iced_renderer::core::{
+    alignment, event, layout, text::Renderer as TextRenderer, text::Text, Alignment,
+    Background, BorderRadius, Clipboard, Color, Element, Font, Length, Rectangle,
+    Shell, Size, mouse::Cursor, widget::Tree,
 };
+use iced::{advanced::{renderer, Widget, Layout}, widget::{Row, Space}};
 
 /// A widget that can be used to create a generic UI with. This is used in conjuction with empty
 /// structs to emulate existential types.
@@ -55,7 +57,7 @@ pub struct GenericSlider;
 /// determines what widget to use for this.
 ///
 /// TODO: There's no way to configure the individual widgets.
-pub struct GenericUi<'a, W: ParamWidget> {
+pub struct GenericUi<'a, W: ParamWidget, R: renderer::Renderer> {
     state: &'a mut State<W>,
 
     params: Arc<dyn Params>,
@@ -80,9 +82,10 @@ pub struct State<W: ParamWidget> {
     widget_state: AtomicRefCell<HashMap<ParamPtr, W::State>>,
 }
 
-impl<'a, W> GenericUi<'a, W>
+impl<'a, W, Renderer: renderer::Renderer> GenericUi<'a, W, Renderer>
 where
     W: ParamWidget,
+    Renderer: renderer::Renderer
 {
     /// Creates a new [`GenericUi`] for all provided parameters.
     pub fn new(state: &'a mut State<W>, params: Arc<dyn Params>) -> Self {
@@ -208,9 +211,10 @@ where
     }
 }
 
-impl<'a, W> Widget<ParamMessage, Renderer> for GenericUi<'a, W>
+impl<'a, W, Renderer> Widget<ParamMessage, Renderer> for GenericUi<'a, W, Renderer>
 where
     W: ParamWidget,
+    Renderer: renderer::Renderer,
 {
     fn width(&self) -> Length {
         self.width
@@ -227,12 +231,13 @@ where
             &mut scrollable_state,
             &mut widget_state,
             renderer,
-            |scrollable, _| scrollable.layout(renderer, limits),
+            |scrollable, _| scrollable.layout(renderer.into(), limits),
         )
     }
 
     fn draw(
         &self,
+        state: &mut Tree,
         renderer: &mut Renderer,
         style: &renderer::Style,
         layout: Layout<'_>,
@@ -246,13 +251,14 @@ where
             &mut widget_state,
             renderer,
             |scrollable, renderer| {
-                scrollable.draw(renderer, style, layout, cursor_position, viewport)
+                scrollable.draw(state, renderer, style, layout, cursor_position, viewport)
             },
         )
     }
 
     fn on_event(
         &mut self,
+        state: &mut Tree,
         event: Event,
         layout: Layout<'_>,
         cursor_position: Point,
@@ -267,7 +273,15 @@ where
             &mut widget_state,
             renderer,
             |mut scrollable, _| {
-                scrollable.on_event(event, layout, cursor_position, renderer, clipboard, shell)
+                scrollable.on_event(
+                    state,
+                    event,
+                    layout,
+                    cursor_position: Cursor::Available(cursor_position),
+                    renderer,
+                    clipboard,
+                    shell,
+                )
             },
         )
     }
@@ -284,12 +298,12 @@ impl ParamWidget for GenericSlider {
     }
 }
 
-impl<'a, W: ParamWidget> GenericUi<'a, W> {
+impl<'a, W: ParamWidget, Renderer> GenericUi<'a, W, Renderer> {
     /// Convert this [`GenericUi`] into an [`Element`] with the correct message. You should have a
     /// variant on your own message type that wraps around [`ParamMessage`] so you can forward those
     /// messages to
     /// [`IcedEditor::handle_param_message()`][crate::IcedEditor::handle_param_message()].
-    pub fn map<Message, F>(self, f: F) -> Element<'a, Message>
+    pub fn map<Message, F>(self, f: F) -> Element<'a, Message, Renderer>
     where
         Message: 'static,
         F: Fn(ParamMessage) -> Message + 'static,
@@ -298,11 +312,11 @@ impl<'a, W: ParamWidget> GenericUi<'a, W> {
     }
 }
 
-impl<'a, W> From<GenericUi<'a, W>> for Element<'a, ParamMessage>
+impl<'a, W, Renderer> From<GenericUi<'a, W, Renderer>> for Element<'a, ParamMessage, Renderer>
 where
     W: ParamWidget,
 {
-    fn from(widget: GenericUi<'a, W>) -> Self {
+    fn from(widget: GenericUi<'a, W, Renderer>) -> Self {
         Element::new(widget)
     }
 }

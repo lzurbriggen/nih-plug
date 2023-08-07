@@ -1,17 +1,15 @@
 //! A super simple peak meter widget.
 
+use baseview::Point;
 use crossbeam::atomic::AtomicCell;
+use iced_renderer::core::{
+    alignment, layout, renderer, text::Renderer as TextRenderer, text::Text, Background,
+    BorderRadius, Color, Element, Font, Layout, Length, Rectangle, Renderer, Size, Widget,
+};
+
 use std::marker::PhantomData;
 use std::time::Duration;
 use std::time::Instant;
-
-use crate::backend::Renderer;
-use crate::renderer::Renderer as GraphicsRenderer;
-use crate::text::Renderer as TextRenderer;
-use crate::{
-    alignment, layout, renderer, text, Background, Color, Element, Font, Layout, Length, Point,
-    Rectangle, Size, Widget,
-};
 
 /// The thickness of this widget's borders.
 const BORDER_WIDTH: f32 = 1.0;
@@ -139,9 +137,9 @@ where
             ..bounds
         };
 
-        let text_size = self
-            .text_size
-            .unwrap_or_else(|| (renderer.default_size() as f32 * 0.7).round() as u16);
+        let text_size = self.text_size.unwrap_or_else(|| {
+            ((renderer as TextRenderer).default_size() as f32 * 0.7).round() as u16
+        });
 
         // We'll draw a simple horizontal for [-90, 20] dB where we'll treat -80 as -infinity, with
         // a label containing the tick markers below it. If `.hold_time()` was called then we'll
@@ -181,7 +179,7 @@ where
             renderer.fill_quad(
                 renderer::Quad {
                     bounds: tick_bounds,
-                    border_radius: 0.0,
+                    border_radius: BorderRadius::from(0.),
                     border_width: 0.0,
                     border_color: Color::TRANSPARENT,
                 },
@@ -211,7 +209,7 @@ where
                         width: TICK_WIDTH,
                         height: bar_bounds.height - (BORDER_WIDTH * 2.0),
                     },
-                    border_radius: 0.0,
+                    border_radius: BorderRadius::from(0.),
                     border_width: 0.0,
                     border_color: Color::TRANSPARENT,
                 },
@@ -223,7 +221,7 @@ where
         renderer.fill_quad(
             renderer::Quad {
                 bounds: bar_bounds,
-                border_radius: 0.0,
+                border_radius: BorderRadius::from(0.),
                 border_width: BORDER_WIDTH,
                 border_color: Color::BLACK,
             },
@@ -242,7 +240,7 @@ where
                         width: TICK_WIDTH,
                         height: ticks_bounds.height * 0.3,
                     },
-                    border_radius: 0.0,
+                    border_radius: BorderRadius::from(0.),
                     border_width: 0.0,
                     border_color: Color::TRANSPARENT,
                 },
@@ -254,9 +252,9 @@ where
             } else {
                 tick_db.to_string()
             };
-            renderer.fill_text(text::Text {
+            (renderer as TextRenderer).fill_text(Text {
                 content: &tick_text,
-                font: self.font,
+                font: self.font.into(),
                 size: text_size as f32,
                 bounds: Rectangle {
                     x: x_coordinate,
@@ -266,17 +264,25 @@ where
                 color: style.text_color,
                 horizontal_alignment: alignment::Horizontal::Center,
                 vertical_alignment: alignment::Vertical::Top,
+                // TODO: iced 10, check shaping and line_height values
+                shaping: iced_renderer::core::text::Shaping::Basic,
+                line_height: iced_renderer::core::text::LineHeight::Relative(1.),
             });
         }
 
         // Every proper graph needs a unit label
         let zero_db_x_coordinate = db_to_x_coord(0.0);
-        let zero_db_text_width = renderer.measure_width("0", text_size, self.font);
-        renderer.fill_text(text::Text {
+        let zero_db_text_width = (renderer as TextRenderer).measure_width(
+            "0",
+            text_size as f32,
+            self.font.into(),
+            iced_renderer::core::text::Shaping::Basic,
+        );
+        (renderer as TextRenderer).fill_text(Text {
             // The spacing looks a bit off if we start with a space here so we'll add a little
             // offset to the x-coordinate instead
             content: "dBFS",
-            font: self.font,
+            font: self.font.into(),
             size: text_size as f32,
             bounds: Rectangle {
                 x: zero_db_x_coordinate + (zero_db_text_width / 2.0) + (text_size as f32 * 0.2),
@@ -286,6 +292,9 @@ where
             color: style.text_color,
             horizontal_alignment: alignment::Horizontal::Left,
             vertical_alignment: alignment::Vertical::Top,
+            // TODO: iced 10, check shaping and line_height values
+            shaping: iced_renderer::core::text::Shaping::Basic,
+            line_height: iced_renderer::core::text::LineHeight::Relative(1.),
         });
     }
 }

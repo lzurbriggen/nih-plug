@@ -8,7 +8,7 @@ license = "ISC"
 description = "An adapter to use iced GUIs with NIH-plug"
 
 [features]
-default = ["opengl"]
+# default = ["opengl"]
 
 # NOTE: wgpu support has been removed from the iced-baseview fork out because
 #       this old iced version uses a wgpu version that doesn't pin the web-sys
@@ -20,7 +20,7 @@ default = ["opengl"]
 # wgpu = ["iced_baseview/wgpu", "baseview/opengl"]
 # Use OpenGL instead of wgpu for the rendering. This should increase platform
 # compatibility at the cost of some iced features not being available.
-opengl = ["iced_baseview/glow"]
+# opengl = ["iced_baseview/glow"]
 
 # Enables a debug view in native platforms (press F12)
 debug = ["iced_baseview/debug"]
@@ -33,27 +33,27 @@ debug = ["iced_baseview/debug"]
 # # Enables the `Canvas` widget for the wgpu backend
 # wgpu_canvas = ["iced_baseview/wgpu_canvas"]
 # Enables the `Canvas` widget for the OpenGL backend
-opengl_canvas = ["iced_baseview/glow_canvas"]
+# opengl_canvas = ["iced_baseview/glow_canvas"]
 
 # # Enables the `QRCode` widget for the wgpu backend
 # wgpu_qr_code = ["iced_baseview/wgpu_qr_code"]
 # Enables the `QRCode` widget for the OpenGL backend
-opengl_qr_code = ["iced_baseview/glow_qr_code"]
+# opengl_qr_code = ["iced_baseview/glow_qr_code"]
 
 # # Enables using system fonts for the wgpu backend
 # wgpu_default_system_font = ["iced_baseview/wgpu_default_system_font"]
 # Enables using system fonts for the OpenGL backend
-opengl_default_system_font = ["iced_baseview/glow_default_system_font"]
+# opengl_default_system_font = ["iced_baseview/glow_default_system_font"]
 
 # Enables advanced color conversion via `palette`
-palette = ["iced_baseview/palette"]
+# palette = ["iced_baseview/palette"]
 
 # Enables `tokio` as the `executor::Default` on native platforms
-tokio = ["iced_baseview/tokio"]
+# tokio = ["iced_baseview/tokio"]
 # Enables `async-std` as the `executor::Default` on native platforms
-async-std = ["iced_baseview/async-std"]
+# async-std = ["iced_baseview/async-std"]
 # Enables `smol` as the `executor::Default` on native platforms
-smol = ["iced_baseview/smol"]
+# smol = ["iced_baseview/smol"]
 
 [dependencies]
 nih_plug = { path = ".." }
@@ -64,6 +64,8 @@ baseview = { git = "https://github.com/RustAudio/baseview.git" }
 crossbeam = "0.8"
 # Upstream doesn't work with the current iced version, this branch also contains
 # additional features
-iced_baseview = { git = "https://github.com/robbert-vdh/iced_baseview.git", branch = "feature/update-baseview", default_features = false }
+iced_baseview = { git = "https://github.com/BillyDM/iced_baseview.git", default_features = false }
 # To make the state persistable
 serde = { version = "1.0", features = ["derive"] }
+iced_renderer = "0.1.0"
+iced = { version = "0.10.0", default-features = false, features = ["advanced"] }
